@@ -50,6 +50,9 @@ module Delayed
         opts.on('-p', '--prefix NAME', "String to be prefixed to worker process names") do |prefix|
           @options[:prefix] = prefix
         end
+        opts.on('--log_output', 'Send STDERR and STDOUT to a log file for daemon process.') do
+          @options[:log_output] = true
+        end
       end
       @args = opts.parse!(args)
     end
@@ -78,7 +81,7 @@ module Delayed
     end
     
     def run_process(process_name, dir)
-      Daemons.run_proc(process_name, :dir => dir, :dir_mode => :normal, :monitor => @monitor, :ARGV => @args) do |*args|
+      Daemons.run_proc(process_name, :dir => dir, :dir_mode => :normal, :log_output => @options[:log_output], :monitor => @monitor, :ARGV => @args) do |*args|
         $0 = File.join(@options[:prefix], process_name) if @options[:prefix]
         run process_name
       end
